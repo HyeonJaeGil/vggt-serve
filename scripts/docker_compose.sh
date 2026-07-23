@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 PORT="${SERVICE_PORT:-8000}"
-BIND_ADDRESS="${GFM_SERVE_BIND_ADDRESS:-}"
+BIND_ADDRESS=""
 GPU_ENABLED=1
 DETACH=0
 BUILD_ON_UP=1
@@ -29,7 +29,6 @@ Actions:
 
 Options:
   -p, --port PORT     Forward this host/container port. Default: 8000
-  --bind-address IP   Host IPv4 address to bind. Default: auto-detected Tailscale IP
   --backend ID        Service directory name. Default: vggt
   --common-image TAG  Shared base image tag. Default: gfm-serve-core:latest
   --cpu               Use the base compose file only and skip GPU settings.
@@ -41,7 +40,6 @@ Options:
 
 Examples:
   scripts/docker_compose.sh up --backend vggt --port 9000
-  scripts/docker_compose.sh up --backend vggt --port 9000 --bind-address 127.0.0.1
   scripts/docker_compose.sh up --backend vggt --port 9000 --cpu
   scripts/docker_compose.sh logs --backend vggt --port 9000
   scripts/docker_compose.sh down
@@ -60,14 +58,6 @@ while [ "$#" -gt 0 ]; do
         exit 1
       fi
       PORT="$2"
-      shift 2
-      ;;
-    --bind-address)
-      if [ "$#" -lt 2 ]; then
-        echo "Missing value for $1" >&2
-        exit 1
-      fi
-      BIND_ADDRESS="$2"
       shift 2
       ;;
     --backend)
@@ -157,17 +147,9 @@ is_ipv4_address() {
 resolve_bind_address() {
   local detected_addresses
 
-  if [ -n "$BIND_ADDRESS" ]; then
-    if ! is_ipv4_address "$BIND_ADDRESS"; then
-      echo "Bind address must be an IPv4 address: $BIND_ADDRESS" >&2
-      exit 1
-    fi
-    return
-  fi
-
   if ! command -v tailscale >/dev/null 2>&1; then
     echo "Tailscale is required but the 'tailscale' command was not found." >&2
-    echo "Install and connect Tailscale, or explicitly use --bind-address IP." >&2
+    echo "Install Tailscale and connect this host to a tailnet, then try again." >&2
     exit 1
   fi
 
