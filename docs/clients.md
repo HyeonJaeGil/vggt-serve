@@ -1,7 +1,9 @@
 # Choose a client
 
 Use the typed Python SDK for Python applications. Use the HTTP API directly
-for shell scripts and other languages.
+for shell scripts and other languages. In every case, use the URL printed by
+`scripts/docker_compose.sh up`; it contains the server's Tailscale IPv4 address
+and is reachable from clients on the same tailnet.
 
 | Use case | Start here |
 | --- | --- |

@@ -38,8 +38,11 @@ CLI, COLMAP, Open3D UI, and development-only packages are intentionally omitted.
 ```bash
 git submodule update --init --recursive
 scripts/docker_compose.sh build --backend depth-anything-3
-scripts/docker_compose.sh up --backend depth-anything-3 --bind-address 127.0.0.1
+scripts/docker_compose.sh up --backend depth-anything-3
 ```
+
+The startup command prints the service URL using the server's Tailscale IPv4
+address and fails if Tailscale is not installed and connected.
 
 Use the common manifest request documented in `docs/api.md`; select this image
 with `GFM_SERVE_BACKEND=depth-anything-3`.

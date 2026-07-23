@@ -42,7 +42,11 @@ def load_cameras(path: Path, image_count: int) -> list[CameraParameters]:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run DA3 through the Python SDK.")
     parser.add_argument("images", nargs="+", type=Path)
-    parser.add_argument("--base-url", default="http://127.0.0.1:9000")
+    parser.add_argument(
+        "--base-url",
+        required=True,
+        help="Tailscale service URL printed by scripts/docker_compose.sh up.",
+    )
     parser.add_argument("--cameras", type=Path, help="Optional camera calibration NPZ.")
     parser.add_argument("--output-dir", type=Path, default=Path("outputs/da3"))
     parser.add_argument("--process-res", type=int, default=504)

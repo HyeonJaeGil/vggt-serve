@@ -1,5 +1,13 @@
 # GFM Serve API
 
+The examples expect the Tailscale URL printed when the server starts:
+
+```bash
+export GFM_SERVE_URL="http://100.101.102.103:9000"
+```
+
+Replace the example IP with the server's `tailscale ip -4` result.
+
 ## Discovery and health
 
 - `GET /healthz` reports HTTP process health.
@@ -13,7 +21,7 @@
 field and one file field per image.
 
 ```bash
-curl -X POST http://127.0.0.1:9000/v1/reconstructions \
+curl -X POST "$GFM_SERVE_URL/v1/reconstructions" \
   -F 'manifest={
     "scene_id":"office",
     "views":[
@@ -33,7 +41,7 @@ This image-only request works with both VGGT and DA3.
 Add a camera to every view and pass both matrices:
 
 ```bash
-curl -X POST http://127.0.0.1:9000/v1/reconstructions \
+curl -X POST "$GFM_SERVE_URL/v1/reconstructions" \
   -F 'manifest={
     "scene_id":"office",
     "views":[

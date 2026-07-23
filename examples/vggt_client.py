@@ -9,7 +9,11 @@ from gfm_serve_client import VGGTClient
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run VGGT through the Python SDK.")
     parser.add_argument("images", nargs="+", type=Path)
-    parser.add_argument("--base-url", default="http://127.0.0.1:9000")
+    parser.add_argument(
+        "--base-url",
+        required=True,
+        help="Tailscale service URL printed by scripts/docker_compose.sh up.",
+    )
     parser.add_argument("--output-dir", type=Path, default=Path("outputs/vggt"))
     parser.add_argument("--depth-conf-threshold", type=float)
     args = parser.parse_args()

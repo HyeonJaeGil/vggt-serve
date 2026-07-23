@@ -22,11 +22,15 @@ Build and run:
 ```bash
 git submodule update --init --recursive
 scripts/docker_compose.sh build --backend vggt
-scripts/docker_compose.sh up --backend vggt --bind-address 127.0.0.1
+scripts/docker_compose.sh up --backend vggt
 python scripts/client_example.py \
   services/vggt/upstream/examples/kitchen/images/00.png \
+  --base-url http://100.101.102.103:8000 \
   --options-json '{"depth_conf_threshold": 1.0}'
 ```
+
+Replace the example URL with the Tailscale URL printed by the startup command.
+Startup fails if Tailscale is not installed and connected.
 
 For application code, install `packages/gfm-serve-client` and use
 `VGGTClient`. It exposes image inputs, typed VGGT options, result models, and

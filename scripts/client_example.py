@@ -17,8 +17,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--base-url",
-        default="http://127.0.0.1:8000",
-        help="Base URL of the running server.",
+        required=True,
+        help="Tailscale service URL printed by scripts/docker_compose.sh up.",
     )
     parser.add_argument(
         "--scene-id",

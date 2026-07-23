@@ -13,7 +13,9 @@ python -m pip install -e packages/gfm-serve-client
 ```
 
 The SDK does not install PyTorch or either model. Start the selected service
-first, then connect its client to the service URL.
+first, then connect its client to the Tailscale URL printed by
+`scripts/docker_compose.sh up`. The examples use `100.101.102.103` as a
+placeholder; replace it with the server's `tailscale ip -4` result.
 
 ## VGGT
 
@@ -23,7 +25,7 @@ point cloud:
 ```python
 from gfm_serve_client import VGGTClient
 
-with VGGTClient("http://127.0.0.1:9000") as client:
+with VGGTClient("http://100.101.102.103:9000") as client:
     result = client.reconstruct(
         ["frames/000.png", "frames/001.png"],
         scene_id="office",
@@ -53,7 +55,7 @@ Image-only inference:
 ```python
 from gfm_serve_client import DepthAnything3Client, DepthAnything3Options
 
-with DepthAnything3Client("http://127.0.0.1:9000") as client:
+with DepthAnything3Client("http://100.101.102.103:9000") as client:
     result = client.reconstruct(
         ["frames/000.png", "frames/001.png"],
         options=DepthAnything3Options(
@@ -91,7 +93,7 @@ cameras = [
     for K, c2w in zip(intrinsics, camera_to_world, strict=True)
 ]
 
-with DepthAnything3Client("http://127.0.0.1:9000") as client:
+with DepthAnything3Client("http://100.101.102.103:9000") as client:
     result = client.reconstruct(
         ["frames/000.png", "frames/001.png"],
         cameras=cameras,
@@ -141,7 +143,7 @@ open the file with `numpy.load()` yourself.
 ```python
 from gfm_serve_client import GFMServeAPIError, VGGTClient
 
-with VGGTClient("http://127.0.0.1:9000") as client:
+with VGGTClient("http://100.101.102.103:9000") as client:
     assert client.health()
     readiness = client.ready()
     descriptor = client.model_descriptor()
