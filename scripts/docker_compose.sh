@@ -188,6 +188,8 @@ if [ "$GPU_ENABLED" -eq 1 ]; then
   COMPOSE_ARGS+=(-f docker-compose.gpu.yml)
 fi
 
+resolve_bind_address
+
 export SERVICE_PORT="$PORT"
 export GFM_SERVE_BIND_ADDRESS="$BIND_ADDRESS"
 export GFM_BACKEND="$BACKEND"
@@ -208,8 +210,6 @@ build_common_base() {
 
 case "$ACTION" in
   up)
-    resolve_bind_address
-    export GFM_SERVE_BIND_ADDRESS="$BIND_ADDRESS"
     echo "Binding GFM Serve to address: http://${BIND_ADDRESS}:${PORT}"
     if [ "$BUILD_ON_UP" -eq 1 ]; then
       build_common_base
