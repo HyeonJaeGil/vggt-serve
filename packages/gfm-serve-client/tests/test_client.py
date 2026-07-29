@@ -107,7 +107,11 @@ def test_da3_client_builds_pose_conditioned_manifest(tmp_path: Path) -> None:
             images,
             cameras=[camera, camera],
             view_ids=["left", "right"],
-            options=DepthAnything3Options(process_res=756, use_ray_pose=True),
+            options=DepthAnything3Options(
+                process_res=756,
+                use_ray_pose=True,
+                export_point_cloud=False,
+            ),
         )
 
     assert result.backend == "depth-anything-3"
@@ -118,6 +122,7 @@ def test_da3_client_builds_pose_conditioned_manifest(tmp_path: Path) -> None:
     assert '"world_to_camera":[[1.0,0.0,0.0,0.0]' in body
     assert '"process_res":756' in body
     assert '"use_ray_pose":true' in body
+    assert '"export_point_cloud":false' in body
     assert 'name="image_000"; filename="left.png"' in body
 
 

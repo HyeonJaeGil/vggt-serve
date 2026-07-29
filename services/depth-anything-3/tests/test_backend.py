@@ -150,3 +150,51 @@ def test_settings_report_variant_capabilities(monkeypatch) -> None:
 
     assert settings.supports_pose_input is False
     assert settings.supports_gaussians is False
+
+
+def test_point_cloud_export_can_be_disabled(tmp_path: Path, monkeypatch) -> None:
+    backend = _backend(tmp_path, monkeypatch)
+
+    class StubModel:
+        def inference(self, **kwargs):
+            return SimpleNamespace(
+                depth=np.ones((1, 3, 4), dtype=np.float32),
+                conf=np.ones((1, 3, 4), dtype=np.float32),
+                extrinsics=np.stack([np.eye(4, dtype=np.float32)[:3]]),
+                intrinsics=np.stack([np.eye(3, dtype=np.float32)]),
+            )
+
+    backend._model = StubModel()
+    backend._device = "cpu"
+    camera = {"convention": "opencv", "world_to_camera": IDENTITY_4, "intrinsics": IDENTITY_3}
+    scene = _scene([camera])
+    path = tmp_path / "frame.png"
+    Image.new("RGB", (4, 3)).save(path)
+    view = PreparedView(
+        view_id=scene.views[0].view_id,
+        upload_key=scene.views[0].upload_key,
+        image=PreparedImage(
+            original_filename=path.name,
+            stored_filename=path.name,
+            path=path,
+            size_bytes=path.stat().st_size,
+            width=4,
+            height=3,
+            content_type="image/png",
+        ),
+    )
+    options = backend.validate_request(scene, {"export_point_cloud": False})
+
+    result = backend.run(
+        BackendRunRequest(
+            request_id="compact",
+            run_dir=tmp_path,
+            scene=scene,
+            views=[view],
+            backend_options=options,
+        )
+    )
+
+    assert {artifact.kind for artifact in result.artifacts} == {"depth_archive"}
+    assert "camera_poses" in result.produced_outputs
+    assert "point_cloud" not in result.produced_outputs

@@ -30,6 +30,7 @@ class DA3BackendOptions(BaseModel):
 
     align_to_input_ext_scale: bool = True
     infer_gs: bool = False
+    export_point_cloud: bool = True
     use_ray_pose: bool = False
     ref_view_strategy: str = Field(
         default="saddle_balanced",
@@ -260,10 +261,21 @@ class DA3Backend(ReconstructionBackend):
                     intrinsics=intrinsic.tolist() if intrinsic is not None else None,
                     source=source,
                 )
-                if world_to_camera is not None and intrinsic is not None:
+                if (
+                    options.export_point_cloud
+                    and world_to_camera is not None
+                    and intrinsic is not None
+                ):
                     points = _points_from_depth(depth, intrinsic, world_to_camera)
-                    colors = np.asarray(Image.open(image.path).convert("RGB"), dtype=np.uint8).reshape(-1, 3)
-                    valid = np.isfinite(points).all(axis=1) & np.isfinite(depth.reshape(-1)) & (depth.reshape(-1) > 0)
+                    colors = np.asarray(
+                        Image.open(image.path).convert("RGB"), dtype=np.uint8
+                    ).reshape(-1, 3)
+                    flat_depth = depth.reshape(-1)
+                    valid = (
+                        np.isfinite(points).all(axis=1)
+                        & np.isfinite(flat_depth)
+                        & (flat_depth > 0)
+                    )
                     all_points.append(points[valid])
                     all_colors.append(colors[valid])
 
@@ -306,6 +318,8 @@ class DA3Backend(ReconstructionBackend):
         outputs = ["depth"]
         if has_confidence:
             outputs.append("depth_confidence")
+        if all(view.camera is not None for view in view_results):
+            outputs.append("camera_poses")
 
         if all_points:
             points = np.concatenate(all_points)
@@ -336,7 +350,7 @@ class DA3Backend(ReconstructionBackend):
                     },
                 )
             )
-            outputs.extend(["camera_poses", "point_cloud"])
+            outputs.append("point_cloud")
 
         if options.infer_gs and prediction.gaussians is not None:
             gaussian_path = request.run_dir / "gaussian_splats.npz"
