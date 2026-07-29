@@ -112,6 +112,7 @@ class DepthAnything3Options(BaseModel):
 
     align_to_input_ext_scale: bool = True
     infer_gs: bool = False
+    export_point_cloud: bool = True
     use_ray_pose: bool = False
     ref_view_strategy: Literal[
         "first", "middle", "saddle_balanced", "saddle_sim_range"
